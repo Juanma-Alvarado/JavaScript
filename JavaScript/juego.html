@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>juego</title>
+    <style>
+      body {
+        margin: 0;
+        display: flex;
+        align-items: center;
+        height: 100vh;
+        background-image: url('https://img.freepik.com/foto-gratis/fondo-pared-ladrillo-blanco_1203-2759.jpg?size=626&ext=jpg')
+      }
+
+      .gameboard {
+        height: 100vh;
+        width: 100vh;
+        border-radius: 50%;
+        overflow: hidden;
+        margin: 0 auto;
+        max-height: 60vh;
+        max-width: 60vh;
+      }
+
+      .color {
+        width: 50%;
+        height: 50%;
+        display: inline-block;
+      }
+
+      .left {
+        float: left;
+      }
+
+      .right {
+        float: left;
+      }
+
+      .verde {
+        background: #057d1e;
+      }
+
+      .verde.light {
+        background: #00ff35;
+      }
+
+      .rojo {
+        background: #8a0000;
+      }
+
+      .rojo.light {
+        background: #ff1111;
+      }
+
+      .amarillo {
+        background: #bd9500;
+      }
+
+      .amarillo.light {
+        background: #e6ff00;
+      }
+
+      .azul  {
+        background: #002588;
+      }
+
+      .azul.light {
+        background: #0ff;
+      }
+
+      .btn-start {
+        border: 5px solid #000000;
+        border-radius: 20px;
+        box-shadow: 10px 10px 10px rgba(0,0,0,0.1);
+        width: 400px;
+        height: 100px;
+        background: #ecf0f1;
+        color: #2c3e50;
+        font-size: 2.5rem;
+        position: absolute;
+        top: calc(50% - 50px);
+        left: calc(50% - 200px);
+      }
+
+      .hide {
+        display: none;
+      }
+
+      *{
+        font-family: 'Comic Sans MS'
+      }
+
+
+    </style>
+  </head>
+  <body>
+    <div class="gameboard">
+      <div id="verde" class="color verde left" data-color="verde"></div>
+      <div id="rojo" class="color rojo right" data-color="rojo"></div>
+      <div id="amarillo" class="color amarillo left" data-color="amarillo"></div>
+      <div id="azul" class="color azul right" data-color="azul"></div>
+      <button id="btnEmpezar" class="btn-start" onclick="empezarJuego()">Empezar juego!</button>
+    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/2.1.0/sweetalert.min.js"></script>
+    <script>
+      const verde = document.getElementById('verde')
+      const rojo = document.getElementById('rojo')
+      const amarillo = document.getElementById('amarillo')
+      const azul = document.getElementById('azul')
+      const btnEmpezar = document.getElementById('btnEmpezar')
+      const ULTIMO_NIVEL = 10
+
+
+        class Juego {
+        constructor() {
+            this.inicializar = this.inicializar.bind(this)
+            this.inicializar()
+            this.generarSecuencia()
+
+          setTimeout(this.siguienteNivel,500)
+          
+        }
+        inicializar() {
+            this.elegirColor = this.elegirColor.bind(this)
+            this.siguienteNivel = this.siguienteNivel.bind(this)
+            this.toggleBtnEmpezar()
+          this.nivel= 1
+          this.colores= {
+            verde,
+            rojo,
+            amarillo,
+            azul
+          }
+        }
+
+        toggleBtnEmpezar() {
+          if(btnEmpezar.classList.contains('hide')){
+            btnEmpezar.classList.remove('hide')
+          }else{
+            btnEmpezar.classList.add('hide')
+          }
+        }
+
+        generarSecuencia(){
+        this.secuencia= new Array(ULTIMO_NIVEL).fill(0).map(n=> Math.floor(Math.random()*4))
+       }
+
+       siguienteNivel(){
+           this.subnivel = 0
+           this.iluminarSecuencia()
+           this.agregarEventosClick()
+       }
+
+       transformarNumeroAColor(numero){
+        switch(numero){
+
+            case 0:
+            return 'verde'
+            case 1:
+            return 'rojo'
+            case 2:
+            return 'amarillo'
+            case 3:
+            return 'azul'
+
+        }
+
+       }
+       transformarColorANumero(color){
+        switch(color){
+
+            case 'verde':
+            return 0
+            case 'rojo':
+            return 1
+            case 'amarillo':
+            return 2
+            case 'azul':
+            return 3
+
+        }
+
+       }
+
+
+       iluminarSecuencia(){
+        for(let  i=0; i <  this.nivel; i++){
+            let color =this.transformarNumeroAColor(this.secuencia[i])            
+           setTimeout(() => {
+            console.log(color)
+            this.iluminarColor(color)
+        },  1000 * i ) 
+       
+           
+            }
+       }
+       
+       iluminarColor(color){
+        this.colores[color].classList.add('light')
+        setTimeout(() => this.apagarColor(color), 350)
+
+       }
+
+       apagarColor(color){
+          this.colores[color].classList.remove('light')
+       }
+
+       agregarEventosClick(){
+          this.colores.verde.addEventListener('click',this.elegirColor)
+          this.colores.rojo.addEventListener('click',this.elegirColor)
+          this.colores.amarillo.addEventListener('click',this.elegirColor)
+          this.colores.azul.addEventListener('click',this.elegirColor)
+        }
+
+        eliminarEventosClick(){
+          this.colores.verde.removeEventListener('click',this.elegirColor)
+          this.colores.rojo.removeEventListener('click',this.elegirColor)
+          this.colores.amarillo.removeEventListener('click',this.elegirColor)
+          this.colores.azul.removeEventListener('click',this.elegirColor)
+      
+        }
+
+        elegirColor(ev){
+           const nombreColor = ev.target.dataset.color
+           const numeroColor = this.transformarColorANumero(nombreColor)
+            
+           this.iluminarColor(nombreColor)
+           if(numeroColor === this.secuencia[this.subnivel]){
+
+            this.subnivel++
+            if(this.subnivel==this.nivel){
+                this.nivel++
+                this.eliminarEventosClick()
+                if(this.nivel == (ULTIMO_NIVEL + 1)){
+                  this.ganoElJuego()
+                }else{
+                    setTimeout(this.siguienteNivel, 1500)
+                }
+            }
+
+           }else{
+              this.perdioElJuego()
+           }
+        }
+
+        
+        ganoElJuego(){
+            swal('Felicidades', 'Has Ganado El Juego! :)','success')
+            .then(this.inicializar)
+        }
+
+        perdioElJuego(){
+            swal('Perdistes','INTETALO DE NUEVO! :(','error')
+            .then(() =>{
+                this.eliminarEventosClick()
+                this.inicializar()
+                })
+        } 
+    
+    }
+
+      function empezarJuego(){
+        window.juego = new Juego()
+      
+    }
+
+
+    </script>
+  </body>
+</html>
